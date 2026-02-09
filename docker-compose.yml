@@ -1,0 +1,114 @@
+# ── Nereo AR — Docker Compose ──────────────────────────
+# Usage: make up  |  docker compose up -d
+# ───────────────────────────────────────────────────────
+
+services:
+  # ── Database ───────────────────────────────────────────
+  nereo-db:
+    image: postgres:16-alpine
+    container_name: nereo-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-nereo}
+      POSTGRES_USER: ${POSTGRES_USER:-nereo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nereo_secret}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nereo} -d ${POSTGRES_DB:-nereo}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nereo-network
+
+  # ── Cache ──────────────────────────────────────────────
+  nereo-cache:
+    image: redis:7-alpine
+    container_name: nereo-cache
+    ports:
+      - "${REDIS_PORT:-6380}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nereo-network
+
+  # ── Backend API (Go) ──────────────────────────────────
+  nereo-api:
+    build:
+      context: ./nereo-backend
+      dockerfile: Dockerfile
+    container_name: nereo-api
+    ports:
+      - "${API_PORT:-8080}:8080"
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-nereo}:${POSTGRES_PASSWORD:-nereo_secret}@nereo-db:5432/${POSTGRES_DB:-nereo}?sslmode=disable
+      REDIS_URL: redis://nereo-cache:6379/0
+      GIN_MODE: ${GIN_MODE:-debug}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      JWT_ACCESS_TTL: ${JWT_ACCESS_TTL:-15m}
+      JWT_REFRESH_TTL: ${JWT_REFRESH_TTL:-168h}
+      MP_ACCESS_TOKEN: ${MP_ACCESS_TOKEN:-}
+      MP_WEBHOOK_SECRET: ${MP_WEBHOOK_SECRET:-}
+      ML_SERVICE_URL: http://nereo-ml:8081
+    depends_on:
+      nereo-db:
+        condition: service_healthy
+      nereo-cache:
+        condition: service_healthy
+    networks:
+      - nereo-network
+
+  # ── ML Service (FastAPI) ──────────────────────────────
+  nereo-ml:
+    build:
+      context: ./nereo-ml
+      dockerfile: Dockerfile
+    container_name: nereo-ml
+    ports:
+      - "${ML_PORT:-8081}:8081"
+    environment:
+      REDIS_URL: redis://nereo-cache:6379/1
+      DATABASE_URL: postgres://${POSTGRES_USER:-nereo}:${POSTGRES_PASSWORD:-nereo_secret}@nereo-db:5432/${POSTGRES_DB:-nereo}?sslmode=disable
+    depends_on:
+      nereo-cache:
+        condition: service_healthy
+    networks:
+      - nereo-network
+
+  # ── Frontend (Next.js — Dev with Hot Reload) ──────────
+  nereo-front:
+    build:
+      context: ./nereo-frontend
+      dockerfile: Dockerfile.dev
+    container_name: nereo-front
+    ports:
+      - "${FRONT_PORT:-3000}:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080}
+      NEXT_PUBLIC_MP_PUBLIC_KEY: ${NEXT_PUBLIC_MP_PUBLIC_KEY:-}
+      WATCHPACK_POLLING: "true"
+    volumes:
+      - ./nereo-frontend/src:/app/src
+      - ./nereo-frontend/public:/app/public
+      - ./nereo-frontend/next.config.ts:/app/next.config.ts
+      - ./nereo-frontend/tsconfig.json:/app/tsconfig.json
+      - ./nereo-frontend/postcss.config.mjs:/app/postcss.config.mjs
+      - ./nereo-frontend/components.json:/app/components.json
+    depends_on:
+      - nereo-api
+    networks:
+      - nereo-network
+
+volumes:
+  pgdata:
+    driver: local
+
+networks:
+  nereo-network:
+    driver: bridge
+    name: nereo-network
