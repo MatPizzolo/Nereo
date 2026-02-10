@@ -12,9 +12,10 @@ FROM alpine:3.20
 LABEL org.opencontainers.image.source="https://github.com/nereo-ar/backend"
 RUN apk --no-cache add ca-certificates tzdata
 RUN adduser -D -u 1000 nereo
-COPY --from=builder /api /api
-COPY migrations /migrations
+WORKDIR /app
+COPY --from=builder /api /app/api
+COPY migrations /app/migrations
 USER nereo
 EXPOSE 8080
 ENV PORT=8080
-CMD ["/api"]
+CMD ["/app/api"]
