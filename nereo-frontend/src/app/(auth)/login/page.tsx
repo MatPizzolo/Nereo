@@ -129,6 +129,14 @@ export default function LoginPage() {
             Iniciar sesión
           </Button>
         </form>
+
+        {/* Register link */}
+        <p className="text-center text-sm text-muted-foreground">
+          ¿No tenés cuenta?{" "}
+          <Link href="/registro" className="text-primary hover:underline">
+            Creá tu negocio
+          </Link>
+        </p>
       </div>
     </div>
   );
