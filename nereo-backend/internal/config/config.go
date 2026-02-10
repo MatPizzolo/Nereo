@@ -54,9 +54,7 @@ func Load() (*Config, error) {
 
 	if err := viper.ReadInConfig(); err != nil {
 		// .env file is optional; env vars take precedence
-		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-			return nil, err
-		}
+		slog.Info("config: .env file not loaded (expected on Railway)", "error", err.Error())
 	}
 
 	accessTTL, err := time.ParseDuration(viper.GetString("JWT_ACCESS_TTL"))
