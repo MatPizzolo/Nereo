@@ -2,6 +2,11 @@ import { toast } from "sonner";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
+// TODO: Remove after debugging Railway connection
+if (typeof window !== "undefined") {
+  console.log("[nereo] API_BASE_URL =", API_BASE_URL);
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
