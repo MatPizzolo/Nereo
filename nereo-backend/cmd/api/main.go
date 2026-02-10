@@ -153,7 +153,7 @@ func registerRoutes(
 	paymentHandler *payment.Handler,
 ) {
 	// Health checks
-	router.GET("/healthz", func(c *gin.Context) {
+	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 	router.GET("/readyz", func(c *gin.Context) {

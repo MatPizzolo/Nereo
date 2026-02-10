@@ -788,7 +788,7 @@ nereo-ml/
 - [ ] **Métricas:** Prometheus endpoint `/metrics` (middleware Gin). Labels por `tenant_id` para métricas de latencia y error rate por tenant.
 - [ ] **Tracing:** OpenTelemetry con export a Jaeger (opcional, Fase 2). Propagar `trace_id` al microservicio FastAPI vía header `X-Trace-ID`.
 - [ ] **Health checks:**
-    - `GET /healthz` → 200 si el server responde.
+    - `GET /health` → 200 si el server responde.
     - `GET /readyz` → 200 si DB y Redis están conectados.
 
 ### 6.4 Seguridad
@@ -838,5 +838,5 @@ nereo-ml/
 | GET | `/api/v1/analytics/churn` | Tasa de cancelacion | owner |
 | GET | `/api/v1/weather/forecast` | Pronostico (proxy ML) | owner, manager |
 | POST | `/api/v1/predictions/demand` | Prediccion demanda (proxy ML) | owner, manager |
-| GET | `/healthz` | Health check | publico |
+| GET | `/health` | Health check | publico |
 | GET | `/readyz` | Readiness check | publico |
