@@ -16,4 +16,5 @@ COPY --from=builder /api /api
 COPY migrations /migrations
 USER nereo
 EXPOSE 8080
+ENV PORT=8080
 CMD ["/api"]

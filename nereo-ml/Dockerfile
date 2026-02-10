@@ -18,4 +18,5 @@ RUN adduser --disabled-password --uid 1000 nereo
 USER nereo
 
 EXPOSE 8081
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8081"]
+ENV PORT=8081
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT}

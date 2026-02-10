@@ -74,9 +74,18 @@ func Load() (*Config, error) {
 		mpBaseURL = "https://api.mercadopago.com"
 	}
 
+	// Railway injects PORT; fall back to it if SERVER_PORT is not set
+	port := viper.GetString("SERVER_PORT")
+	if port == "" {
+		port = viper.GetString("PORT")
+	}
+	if port == "" {
+		port = "8080"
+	}
+
 	cfg := &Config{
 		Server: ServerConfig{
-			Port: viper.GetString("SERVER_PORT"),
+			Port: port,
 			Mode: viper.GetString("GIN_MODE"),
 		},
 		Database: DatabaseConfig{
