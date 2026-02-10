@@ -47,7 +47,6 @@ func Load() (*Config, error) {
 	viper.AutomaticEnv()
 
 	// Defaults
-	viper.SetDefault("SERVER_PORT", "8080")
 	viper.SetDefault("GIN_MODE", "debug")
 	viper.SetDefault("JWT_ACCESS_TTL", "15m")
 	viper.SetDefault("JWT_REFRESH_TTL", "168h")
@@ -74,10 +73,10 @@ func Load() (*Config, error) {
 		mpBaseURL = "https://api.mercadopago.com"
 	}
 
-	// Railway injects PORT; fall back to it if SERVER_PORT is not set
-	port := viper.GetString("SERVER_PORT")
+	// Railway injects PORT; prefer it over SERVER_PORT
+	port := viper.GetString("PORT")
 	if port == "" {
-		port = viper.GetString("PORT")
+		port = viper.GetString("SERVER_PORT")
 	}
 	if port == "" {
 		port = "8080"
