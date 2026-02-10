@@ -88,6 +88,7 @@ func main() {
 	router := gin.New()
 	router.Use(gin.Recovery())
 	router.Use(mw.LoggingMiddleware())
+	router.Use(mw.CORSMiddleware(cfg.Server.CORSOrigins))
 
 	// Initialize services
 	jwtManager := auth.NewJWTManager(cfg.JWT.Secret, cfg.JWT.AccessTTL, cfg.JWT.RefreshTTL)

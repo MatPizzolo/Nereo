@@ -16,8 +16,9 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Port string
-	Mode string // debug | release | test
+	Port        string
+	Mode        string // debug | release | test
+	CORSOrigins string // comma-separated allowed origins
 }
 
 type DatabaseConfig struct {
@@ -83,8 +84,9 @@ func Load() (*Config, error) {
 
 	cfg := &Config{
 		Server: ServerConfig{
-			Port: port,
-			Mode: viper.GetString("GIN_MODE"),
+			Port:        port,
+			Mode:        viper.GetString("GIN_MODE"),
+			CORSOrigins: viper.GetString("CORS_ORIGINS"),
 		},
 		Database: DatabaseConfig{
 			URL: viper.GetString("DATABASE_URL"),

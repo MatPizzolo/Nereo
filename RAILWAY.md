@@ -45,6 +45,7 @@ Railway will provision both and expose connection variables automatically.
 DATABASE_URL=${{Postgres.DATABASE_URL}}
 REDIS_URL=${{Redis.REDIS_URL}}
 GIN_MODE=release
+CORS_ORIGINS=https://<your-frontend-domain>.up.railway.app
 JWT_SECRET=<generate-a-64-char-random-string>
 JWT_ACCESS_TTL=15m
 JWT_REFRESH_TTL=168h
@@ -124,6 +125,7 @@ Add the CNAME records Railway provides to your DNS.
 | `DATABASE_URL` | ✅ | PostgreSQL connection string |
 | `REDIS_URL` | ✅ | Redis connection string |
 | `GIN_MODE` | ✅ | Set to `release` for production |
+| `CORS_ORIGINS` | ✅ | Comma-separated allowed origins (frontend URL) |
 | `JWT_SECRET` | ✅ | 64-char random string |
 | `JWT_ACCESS_TTL` | | Default: `15m` |
 | `JWT_REFRESH_TTL` | | Default: `168h` |
